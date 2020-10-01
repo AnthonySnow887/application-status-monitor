@@ -13,6 +13,8 @@ General characteristics of the host on which the application is running:
 - network statistics
 - disk statistics
 
+The utility allows you to receive information from a remote server using ssh.
+
 NOTE: Only Linux.
 
 ## Dependencies

@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle(trUtf8("Application monitor"));
+    this->setWindowTitle(trUtf8("Application Status Monitor"));
 
     ui->lineEditMaxDataTime->setText(QString::number(MAX_DATA_DIFF_TIME_SEC));
 
