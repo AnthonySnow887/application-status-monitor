@@ -33,3 +33,9 @@ make
 ```bash
 ./ApplicationStatusMonitor &
 ```
+
+## Example of work
+
+![Application Base Statistics](https://github.com/AnthonySnow887/application-status-monitor/blob/master/App_Base.png?raw=true)
+![Application Opend Network Ports](https://github.com/AnthonySnow887/application-status-monitor/blob/master/App_Net.png?raw=true)
+![Host Statistics](https://github.com/AnthonySnow887/application-status-monitor/blob/master/Host_Stat.png?raw=true)
