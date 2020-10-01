@@ -1,7 +1,6 @@
 
 include(QtSsh/QtSsh.pri)
 include(QCustomPlot/QCustomPlot.pri)
-#include(ProcessLoad/ProcessLoad.pri)
 include(QtSystemLoad/QtSystemLoad.pri)
 
 QT       += core gui
