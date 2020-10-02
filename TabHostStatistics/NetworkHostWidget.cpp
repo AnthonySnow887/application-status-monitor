@@ -79,8 +79,8 @@ void NetworkHostWidget::processCmdResult(const QString &cmd, const QString &resu
             in += NetworkInfo::convertToKb(info.inBytesNow());
             out += NetworkInfo::convertToKb(info.outBytesNow());
         }
-        in = this->roundDouble(in);
-        out = this->roundDouble(out);
+        in = this->roundDoubleAbs(in);
+        out = this->roundDoubleAbs(out);
         double diffIn = 0;
         this->plotGraphData(_customPlot, _graphIn, in, _valueStartIn, diffIn);
         ui->labelReceiving->setText(QString("Receiving: %1Kb/c (diff: %2)")

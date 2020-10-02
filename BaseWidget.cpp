@@ -157,3 +157,8 @@ double BaseWidget::roundDouble(const double &value) const
 {
     return (static_cast<double>(qRound(value * 100)) / 100.0);
 }
+
+double BaseWidget::roundDoubleAbs(const double &value) const
+{
+    return qAbs(this->roundDouble(value));
+}

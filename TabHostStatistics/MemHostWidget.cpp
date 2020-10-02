@@ -69,33 +69,33 @@ void MemHostWidget::processCmdResult(const QString &cmd, const QString &result)
     MemoryInfo memInfo = MemoryLoad::memoryValue(result.trimmed().toUtf8());
     double diffMem = 0;
     QString memSizeName("Gb");
-    double dataMem = this->roundDouble(MemoryInfo::convertToGb(memInfo.memoryUsage()));
-    double dataMemTotal = this->roundDouble(MemoryInfo::convertToGb(memInfo.memoryTotal()));
+    double dataMem = this->roundDoubleAbs(MemoryInfo::convertToGb(memInfo.memoryUsage()));
+    double dataMemTotal = this->roundDoubleAbs(MemoryInfo::convertToGb(memInfo.memoryTotal()));
     if (dataMemTotal < 0) {
         memSizeName = "Mb";
-        dataMem = this->roundDouble(MemoryInfo::convertToMb(memInfo.memoryUsage()));
-        dataMemTotal = this->roundDouble(MemoryInfo::convertToMb(memInfo.memoryTotal()));
+        dataMem = this->roundDoubleAbs(MemoryInfo::convertToMb(memInfo.memoryUsage()));
+        dataMemTotal = this->roundDoubleAbs(MemoryInfo::convertToMb(memInfo.memoryTotal()));
     }
     if (dataMemTotal < 0) {
         memSizeName = "Kb";
-        dataMem = this->roundDouble(MemoryInfo::convertToKb(memInfo.memoryUsage()));
-        dataMemTotal = this->roundDouble(MemoryInfo::convertToKb(memInfo.memoryTotal()));
+        dataMem = this->roundDoubleAbs(MemoryInfo::convertToKb(memInfo.memoryUsage()));
+        dataMemTotal = this->roundDoubleAbs(MemoryInfo::convertToKb(memInfo.memoryTotal()));
     }
     this->plotGraphData(_customPlot, _graphMem, dataMem, _valueStartMem, diffMem);
 
     double diffSwap = 0;
     QString swapSizeName("Gb");
-    double dataSwap = this->roundDouble(MemoryInfo::convertToGb(memInfo.swapUsage()));
-    double dataSwapTotal = this->roundDouble(MemoryInfo::convertToGb(memInfo.swapTotal()));
+    double dataSwap = this->roundDoubleAbs(MemoryInfo::convertToGb(memInfo.swapUsage()));
+    double dataSwapTotal = this->roundDoubleAbs(MemoryInfo::convertToGb(memInfo.swapTotal()));
     if (dataSwapTotal < 0) {
         swapSizeName = "Mb";
-        dataSwap = this->roundDouble(MemoryInfo::convertToMb(memInfo.swapUsage()));
-        dataSwapTotal = this->roundDouble(MemoryInfo::convertToMb(memInfo.swapTotal()));
+        dataSwap = this->roundDoubleAbs(MemoryInfo::convertToMb(memInfo.swapUsage()));
+        dataSwapTotal = this->roundDoubleAbs(MemoryInfo::convertToMb(memInfo.swapTotal()));
     }
     if (dataSwapTotal < 0) {
         swapSizeName = "Kb";
-        dataSwap = this->roundDouble(MemoryInfo::convertToKb(memInfo.swapUsage()));
-        dataSwapTotal = this->roundDouble(MemoryInfo::convertToKb(memInfo.swapTotal()));
+        dataSwap = this->roundDoubleAbs(MemoryInfo::convertToKb(memInfo.swapUsage()));
+        dataSwapTotal = this->roundDoubleAbs(MemoryInfo::convertToKb(memInfo.swapTotal()));
     }
     this->plotGraphData(_customPlot, _graphSwap, dataSwap, _valueStartSwap, diffSwap);
 

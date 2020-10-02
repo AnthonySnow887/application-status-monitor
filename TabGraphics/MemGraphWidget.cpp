@@ -79,7 +79,7 @@ void MemGraphWidget::processCmdResult(const QString &cmd, const QString &result)
                                           pInfo);
 
         double diff = 0;
-        double memMb = this->roundDouble(ProcessInfo::convertToMb(pInfo.physicalMemoryUsage()));
+        double memMb = this->roundDoubleAbs(ProcessInfo::convertToMb(pInfo.physicalMemoryUsage()));
         this->plotGraphData(_customPlot, _graph, memMb, _valueStart, diff);
 
         ui->labelMem->setText(QString("Memory: %1 Mb (diff: %2)").arg(memMb).arg(diff));

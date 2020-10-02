@@ -85,12 +85,12 @@ void DriveHostWidget::processCmdResult(const QString &cmd, const QString &result
             double vStart = _valueStartMap.value(info.mountPoint());
             double diff = 0;
             QString dSizeName("Gb");
-            double dTotalSize = this->roundDouble(DriveInfo::convertToGb(info.totalSize()));
-            double dUsageSize = this->roundDouble(DriveInfo::convertToGb(info.usageSize()));
+            double dTotalSize = this->roundDoubleAbs(DriveInfo::convertToGb(info.totalSize()));
+            double dUsageSize = this->roundDoubleAbs(DriveInfo::convertToGb(info.usageSize()));
             if (dTotalSize < 0) {
                 dSizeName = "Mb";
-                dTotalSize = this->roundDouble(DriveInfo::convertToMb(info.totalSize()));
-                dUsageSize = this->roundDouble(DriveInfo::convertToMb(info.usageSize()));
+                dTotalSize = this->roundDoubleAbs(DriveInfo::convertToMb(info.totalSize()));
+                dUsageSize = this->roundDoubleAbs(DriveInfo::convertToMb(info.usageSize()));
             }
 
             this->plotGraphData(_customPlot, graph, dUsageSize, vStart, diff);

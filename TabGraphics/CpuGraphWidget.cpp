@@ -79,7 +79,7 @@ void CpuGraphWidget::processCmdResult(const QString &cmd, const QString &result)
                                           pInfo);
 
         double diff = 0;
-        double cpu = this->roundDouble(pInfo.userCpuUsage());
+        double cpu = this->roundDoubleAbs(pInfo.userCpuUsage());
         this->plotGraphData(_customPlot, _graph, cpu, _valueStart, diff);
 
         ui->labelCpu->setText(QString("CPU: %1 (diff: %2)").arg(cpu).arg(diff));

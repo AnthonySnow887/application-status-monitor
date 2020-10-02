@@ -51,6 +51,7 @@ protected:
     QColor randomColor() const;
 
     double roundDouble(const double &value) const;
+    double roundDoubleAbs(const double &value) const;
 };
 
 #endif // BASEWIDGET_H

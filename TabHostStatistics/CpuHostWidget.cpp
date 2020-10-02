@@ -82,8 +82,7 @@ void CpuHostWidget::processCmdResult(const QString &cmd, const QString &result)
                 continue;
             double vStart = _valueStartMap.value(info.cpuId());
             double diff = 0;
-            double cpu = info.cpuUsage();
-            cpu = static_cast<double>(qRound(cpu * 100)) / 100.0;
+            double cpu = this->roundDoubleAbs(info.cpuUsage());
             this->plotGraphData(_customPlot, graph, cpu, vStart, diff);
             // replace value start
             _valueStartMap.insert(info.cpuId(), vStart);
