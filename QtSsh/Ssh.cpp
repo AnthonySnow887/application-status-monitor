@@ -145,11 +145,24 @@ int Ssh::verifyKnownhost(sshServerHostType &type, QString &error)
 
     unsigned char *hash = 0x00;
     char *hexa;
+    size_t hlen;
+    ssh_key srv_pubkey;
+    int rc;
 
     int state = ssh_is_server_known(_sshSession);
-    int hlen = ssh_get_pubkey_hash(_sshSession, &hash);
-    if(hlen < 0) {
-        error = QString("Get pubkey hash failed!");
+    rc = ssh_get_server_publickey(_sshSession, &srv_pubkey);
+    if (rc < 0) {
+        error = QString("Get server publickey failed!");
+        return -1;
+    }
+
+    rc = ssh_get_publickey_hash(srv_pubkey,
+                                SSH_PUBLICKEY_HASH_SHA1,
+                                &hash,
+                                &hlen);
+    ssh_key_free(srv_pubkey);
+    if (rc < 0) {
+        error = QString("Get publickey hash failed!");
         return -1;
     }
 
@@ -472,9 +485,9 @@ void Ssh::onSshSendCommand()
         return;
     }
 
-    unsigned int nbytes;
-    unsigned int bufferSize = 256;
-    char buffer[bufferSize];
+    unsigned int nbytes = 0;
+//    unsigned int bufferSize = 1024;
+    char buffer[1024];
 
     ssh_channel channel = ssh_channel_new(_sshSession);
     if(!channel) {
@@ -518,8 +531,8 @@ void Ssh::onSshSendCommand()
     }
 
     nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
-    while(nbytes > 0) {
-        if (nbytes > bufferSize)
+    while (nbytes > 0) {
+        if (nbytes > sizeof (buffer))
             break;
         if (sshBuffer.write(buffer, nbytes) != nbytes) {
             _sshLastError = QString("Write in QBuffer failed!");
