@@ -25,8 +25,8 @@ MemHostWidget::MemHostWidget(QWidget *parent) :
     gridPen.setStyle(Qt::DotLine);
     _customPlot->xAxis->grid()->setSubGridPen(gridPen);
     _customPlot->yAxis->grid()->setSubGridPen(gridPen);
-    _customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-    _customPlot->yAxis->setTickLabelType(QCPAxis::ltNumber);
+    this->setGraphAxisType(_customPlot->xAxis, GraphAxisType_DateTime);
+    this->setGraphAxisType(_customPlot->yAxis, GraphAxisType_Number);
 
     // - 1 -
     _graphMem = _customPlot->addGraph();
@@ -46,12 +46,7 @@ MemHostWidget::MemHostWidget(QWidget *parent) :
     pen2.setWidthF(1.2);
     _graphSwap->setPen(pen2);
 
-    //--
-    _xMin = std::numeric_limits<double>::max();
-    _xMax = std::numeric_limits<double>::min();
-    _valueMin = 0; //std::numeric_limits<double>::max();
-    _valueMax = std::numeric_limits<double>::min();
-
+    // --
     _valueStartMem = -1;
     _valueStartSwap = -1;
 }
@@ -86,7 +81,7 @@ void MemHostWidget::processCmdResult(const QString &cmd, const QString &result)
         dataMem = this->roundDouble(MemoryInfo::convertToKb(memInfo.memoryUsage()));
         dataMemTotal = this->roundDouble(MemoryInfo::convertToKb(memInfo.memoryTotal()));
     }
-    this->plotData(_graphMem, dataMem, _valueStartMem, diffMem);
+    this->plotGraphData(_customPlot, _graphMem, dataMem, _valueStartMem, diffMem);
 
     double diffSwap = 0;
     QString swapSizeName("Gb");
@@ -102,7 +97,7 @@ void MemHostWidget::processCmdResult(const QString &cmd, const QString &result)
         dataSwap = this->roundDouble(MemoryInfo::convertToKb(memInfo.swapUsage()));
         dataSwapTotal = this->roundDouble(MemoryInfo::convertToKb(memInfo.swapTotal()));
     }
-    this->plotData(_graphSwap, dataSwap, _valueStartSwap, diffSwap);
+    this->plotGraphData(_customPlot, _graphSwap, dataSwap, _valueStartSwap, diffSwap);
 
     //Memory: 0Mb (diff: 0; Max: 0Mb)
     ui->labelMem->setText(QString("Memory: %2%1 (diff: %3; Max: %4%1)")
@@ -121,68 +116,10 @@ void MemHostWidget::processCmdResult(const QString &cmd, const QString &result)
 
 void MemHostWidget::stop()
 {
-    _graphMem->clearData();
-    _graphSwap->clearData();
-
-    _xMin = std::numeric_limits<double>::max();
-    _xMax = std::numeric_limits<double>::min();
-    _valueMin = 0; //std::numeric_limits<double>::max();
-    _valueMax = std::numeric_limits<double>::min();
+    this->clearGraphData(_graphMem);
+    this->clearGraphData(_graphSwap);
+    this->clearGraphRangeValues();
 
     _valueStartMem = -1;
     _valueStartSwap = -1;
-}
-
-double MemHostWidget::roundDouble(const double &value) const
-{
-    return (static_cast<double>(qRound(value * 100)) / 100.0);
-}
-
-void MemHostWidget::plotData(QCPGraph *graph, const double &value, double &startValue, double &diff)
-{
-    if (!graph)
-        return;
-    // plot data
-    uint cDateTime = QDateTime::currentDateTime().toTime_t();
-    graph->addData(cDateTime, value);
-
-    // set axis range
-    double lastV = 0;
-
-    QCPDataMap *data = graph->data();
-    QList<double> dKeys = data->keys();
-    QMapIterator<double, QCPData> it(*data);
-    while (it.hasNext()) {
-        it.next();
-        if (startValue == -1)
-            startValue = it.value().value;
-        if (it.key() < _xMin)
-            _xMin = it.key();
-        if (it.key() > _xMax)
-            _xMax = it.key();
-        if (it.value().value < _valueMin)
-            _valueMin = it.value().value;
-        if (it.value().value > _valueMax)
-            _valueMax = it.value().value;
-
-        lastV = it.value().value;
-    }
-    if (dKeys.size() > 1) {
-        double diffKey = dKeys[dKeys.size() - 1] - dKeys[0];
-        if (diffKey >= _maxDataTimeSec) {
-            graph->removeData(dKeys[0]);
-            _xMin = dKeys[1];
-        }
-    }
-
-    diff = lastV - startValue;
-
-    _customPlot->xAxis->setRange(_xMin, _xMax + 5);
-    _customPlot->xAxis->setPadding(5); // a bit more space to the left border
-    int vDiff = (_valueMax - _valueMin) / 2;
-    if (vDiff < 5)
-        vDiff = 5;
-    _customPlot->yAxis->setRange(_valueMin, _valueMax + vDiff);
-    _customPlot->yAxis->setPadding(5);
-    _customPlot->replot();
 }

@@ -28,16 +28,8 @@ private:
     QCPGraph *_graphMem;
     QCPGraph *_graphSwap;
 
-    double _xMin;
-    double _xMax;
-    double _valueMin;
-    double _valueMax;
-
     double _valueStartMem;
     double _valueStartSwap;
-
-    double roundDouble(const double &value) const;
-    void plotData(QCPGraph *graph, const double &value, double &startValue, double &diff);
 };
 
 #endif // MEMHOSTWIDGET_H

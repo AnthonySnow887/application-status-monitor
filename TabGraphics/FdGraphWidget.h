@@ -28,16 +28,7 @@ private:
     QCustomPlot *_customPlot;
     QCPGraph *_graph;
 
-//    QMap<QString, double> _resultLst; // TODO delete...
-
-    double _xMin;
-    double _xMax;
-    double _valueMin;
-    double _valueMax;
-
     double _valueStart;
-
-    void plotData(QCPGraph *graph, const double &value, double &startValue, double &diff);
 };
 
 #endif // FDGRAPHWIDGET_H

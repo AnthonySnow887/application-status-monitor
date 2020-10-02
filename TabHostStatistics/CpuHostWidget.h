@@ -31,19 +31,11 @@ private:
     QMap<int /*cpu id*/, QCPGraph *> _graphMap;
 
     QMap<QString, QByteArray> _resultLst;
-
-    double _xMin;
-    double _xMax;
-    double _valueMin;
-    double _valueMax;
-
     QMap<int /*cpu id*/, double> _valueStartMap;
 
     bool appendGraph(const int &cpu_id, const QString &name);
     void removeAllGraphs();
     void clearAllGraphs();
-    void plotData(QCPGraph *graph, const double &value, double &startValue, double &diff);
-    QColor randomColor();
 
     void resizeLabel();
 

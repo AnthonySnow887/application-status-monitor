@@ -30,14 +30,7 @@ private:
 
     QMap<QString, QByteArray> _resultLst;
 
-    double _xMin;
-    double _xMax;
-    double _valueMin;
-    double _valueMax;
-
     double _valueStart;
-
-    void plotData(QCPGraph *graph, const double &value, double &startValue, double &diff);
 };
 
 #endif // MEMGRAPHWIDGET_H

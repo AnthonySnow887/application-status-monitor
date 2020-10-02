@@ -29,20 +29,11 @@ private:
     QMap<QString /*mount point*/, QCPGraph *> _graphMap;
 
     QMap<QString, QByteArray> _resultLst;
-
-    double _xMin;
-    double _xMax;
-    double _valueMin;
-    double _valueMax;
-
     QMap<QString /*mount point*/, double> _valueStartMap;
 
-    double roundDouble(const double &value) const;
     bool appendGraph(const QString &mountPoint, const QString &name);
     void removeAllGraphs();
     void clearAllGraphs();
-    void plotData(QCPGraph *graph, const double &value, double &startValue, double &diff);
-    QColor randomColor();
 
     void resizeLabel();
 

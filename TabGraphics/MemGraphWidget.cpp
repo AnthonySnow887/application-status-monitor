@@ -27,8 +27,8 @@ MemGraphWidget::MemGraphWidget(QWidget *parent) :
     gridPen.setStyle(Qt::DotLine);
     _customPlot->xAxis->grid()->setSubGridPen(gridPen);
     _customPlot->yAxis->grid()->setSubGridPen(gridPen);
-    _customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-    _customPlot->yAxis->setTickLabelType(QCPAxis::ltNumber);
+    this->setGraphAxisType(_customPlot->xAxis, GraphAxisType_DateTime);
+    this->setGraphAxisType(_customPlot->yAxis, GraphAxisType_Number);
 
     // - 1 -
     _graph = _customPlot->addGraph();
@@ -40,11 +40,6 @@ MemGraphWidget::MemGraphWidget(QWidget *parent) :
     _graph->setPen(pen);
 
     //--
-    _xMin = std::numeric_limits<double>::max();
-    _xMax = std::numeric_limits<double>::min();
-    _valueMin = 0; //std::numeric_limits<double>::max();
-    _valueMax = std::numeric_limits<double>::min();
-
     _valueStart = -1;
 }
 
@@ -86,10 +81,8 @@ void MemGraphWidget::processCmdResult(const QString &cmd, const QString &result)
                                           pInfo);
 
         double diff = 0;
-        double memMb = ProcessInfo::convertToMb(pInfo.physicalMemoryUsage());
-        memMb = static_cast<double>(qRound(memMb * 100)) / 100.0;
-
-        this->plotData(_graph, memMb, _valueStart, diff);
+        double memMb = this->roundDouble(ProcessInfo::convertToMb(pInfo.physicalMemoryUsage()));
+        this->plotGraphData(_customPlot, _graph, memMb, _valueStart, diff);
 
         ui->labelMem->setText(QString("Memory: %1 Mb (diff: %2)").arg(memMb).arg(diff));
 
@@ -104,61 +97,8 @@ void MemGraphWidget::processCmdResult(const QString &cmd, const QString &result)
 
 void MemGraphWidget::stop()
 {
-    _graph->clearData();
-
-    _xMin = std::numeric_limits<double>::max();
-    _xMax = std::numeric_limits<double>::min();
-    _valueMin = 0; //std::numeric_limits<double>::max();
-    _valueMax = std::numeric_limits<double>::min();
+    this->clearGraphData(_graph);
+    this->clearGraphRangeValues();
 
     _valueStart = -1;
-}
-
-void MemGraphWidget::plotData(QCPGraph *graph, const double &value, double &startValue, double &diff)
-{
-    if (!graph)
-        return;
-    // plot data
-    uint cDateTime = QDateTime::currentDateTime().toTime_t();
-    graph->addData(cDateTime, value);
-
-    // set axis range
-    double lastV = 0;
-
-    QCPDataMap *data = graph->data();
-    QList<double> dKeys = data->keys();
-    QMapIterator<double, QCPData> it(*data);
-    while (it.hasNext()) {
-        it.next();
-        if (startValue == -1)
-            startValue = it.value().value;
-        if (it.key() < _xMin)
-            _xMin = it.key();
-        if (it.key() > _xMax)
-            _xMax = it.key();
-        if (it.value().value < _valueMin)
-            _valueMin = it.value().value;
-        if (it.value().value > _valueMax)
-            _valueMax = it.value().value;
-
-        lastV = it.value().value;
-    }
-    if (dKeys.size() > 1) {
-        double diffKey = dKeys[dKeys.size() - 1] - dKeys[0];
-        if (diffKey >= _maxDataTimeSec) {
-            graph->removeData(dKeys[0]);
-            _xMin = dKeys[1];
-        }
-    }
-
-    diff = lastV - startValue;
-
-    _customPlot->xAxis->setRange(_xMin, _xMax + 5);
-    _customPlot->xAxis->setPadding(5); // a bit more space to the left border
-    int vDiff = (_valueMax - _valueMin) / 2;
-    if (vDiff < 5)
-        vDiff = 5;
-    _customPlot->yAxis->setRange(_valueMin, _valueMax + vDiff);
-    _customPlot->yAxis->setPadding(5);
-    _customPlot->replot();
 }
