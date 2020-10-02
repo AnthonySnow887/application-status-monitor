@@ -3,8 +3,6 @@
 
 #include "QtSystemLoad/ProcessLoad.h"
 
-#include <qmath.h>
-
 CpuGraphWidget::CpuGraphWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CpuGraphWidget)

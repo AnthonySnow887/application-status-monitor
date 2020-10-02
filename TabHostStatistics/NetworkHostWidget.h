@@ -2,8 +2,9 @@
 #define NETWORKHOSTWIDGET_H
 
 #include <QWidget>
+#include <QMap>
+
 #include "BaseWidget.h"
-#include "QCustomPlot/qcustomplot.h"
 
 namespace Ui {
     class NetworkHostWidget;

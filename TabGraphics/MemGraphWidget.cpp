@@ -3,8 +3,6 @@
 
 #include "QtSystemLoad/ProcessLoad.h"
 
-#include <qmath.h>
-
 MemGraphWidget::MemGraphWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MemGraphWidget)

@@ -5,7 +5,6 @@
 
 #include <QFont>
 #include <QFontMetrics>
-#include <qmath.h>
 
 #define ISO_FS "iso"
 

@@ -1,5 +1,7 @@
 #include "BaseWidget.h"
 
+#include <qmath.h>
+
 BaseWidget::BaseWidget()
     : _maxDataTimeSec(MIN_DATA_DIFF_TIME_SEC)
 {

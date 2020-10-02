@@ -2,9 +2,6 @@
 #define FDGRAPHWIDGET_H
 
 #include "BaseWidget.h"
-#include "QCustomPlot/qcustomplot.h"
-
-#include <QMap>
 
 namespace Ui {
     class FdGraphWidget;

@@ -5,7 +5,6 @@
 
 #include <QFont>
 #include <QFontMetrics>
-#include <qmath.h>
 
 CpuHostWidget::CpuHostWidget(QWidget *parent) :
     QWidget(parent),
