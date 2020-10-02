@@ -485,9 +485,8 @@ void Ssh::onSshSendCommand()
         return;
     }
 
-    unsigned int nbytes = 0;
-//    unsigned int bufferSize = 1024;
     char buffer[1024];
+    unsigned int nbytes = 0;
 
     ssh_channel channel = ssh_channel_new(_sshSession);
     if(!channel) {
