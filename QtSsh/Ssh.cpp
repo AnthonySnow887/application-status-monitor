@@ -150,12 +150,16 @@ int Ssh::verifyKnownhost(sshServerHostType &type, QString &error)
     int rc;
 
     int state = ssh_is_server_known(_sshSession);
+
+#if (LIBSSH_VERSION_MINOR >= 8)
     rc = ssh_get_server_publickey(_sshSession, &srv_pubkey);
+#else
+    rc = ssh_get_publickey(_sshSession, &srv_pubkey);
+#endif
     if (rc < 0) {
         error = QString("Get server publickey failed!");
         return -1;
     }
-
     rc = ssh_get_publickey_hash(srv_pubkey,
                                 SSH_PUBLICKEY_HASH_SHA1,
                                 &hash,
