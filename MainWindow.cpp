@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     _widgets.append(new TabHostStatistics(this));
 
     // -- add in main window
-    for (BaseTabWidget *w : _widgets)
+    for (BaseTabWidget *w : _widgets) // TODO qAsConst
         ui->tabWidget->addTab(dynamic_cast<QWidget*>(w), w->tabTitle());
 }
 
@@ -65,7 +65,7 @@ MainWindow::~MainWindow()
 QList<BaseWidget *> MainWindow::allWidgets() const
 {
     QList<BaseWidget *> wList;
-    for (BaseTabWidget *w : _widgets)
+    for (BaseTabWidget *w : _widgets) // TODO qAsConst
         wList.append(w->widgetsList());
     return wList;
 }
@@ -83,9 +83,9 @@ QString MainWindow::workingTimeToStr(uint sec) const
     QString minutesString = QString::number(minutes);
     QString secondsString = QString::number(seconds);
 
-    if(minutes < 10)
+    if (minutes < 10)
         minutesString = "0" + minutesString;
-    if(seconds < 10)
+    if (seconds < 10)
         secondsString = "0" + secondsString;
 
     return QString("%1days %2h %3m %4sec").arg(days).arg(hours).arg(minutesString).arg(secondsString);
@@ -146,7 +146,7 @@ void MainWindow::selectLocalData()
     process.start("/bin/bash", {"-c" , cmdStr.trimmed()});
     process.waitForFinished();
     QByteArray res = process.readAllStandardOutput();
-    QList<BaseWidget *> wList = cmd.widgetsList();
+    const QList<BaseWidget *> wList = cmd.widgetsList();
     for (BaseWidget *w : wList)
         w->processCmdResult(cmdStr, QString::fromUtf8(res.constData()));
 
@@ -192,6 +192,7 @@ void MainWindow::onConnect()
     ui->lineEditHost->setEnabled(false);
     ui->lineEditLogin->setEnabled(false);
     ui->lineEditPassword->setEnabled(false);
+    ui->comboBoxAuthType->setEnabled(false);
     ui->pushButtonConnect->setEnabled(false);
     ui->pushButtonDisconnect->setEnabled(true);
 
@@ -208,6 +209,7 @@ void MainWindow::onDisconnect()
     ui->lineEditHost->setEnabled(true);
     ui->lineEditLogin->setEnabled(true);
     ui->lineEditPassword->setEnabled(true);
+    ui->comboBoxAuthType->setEnabled(true);
     ui->pushButtonConnect->setEnabled(true);
     ui->pushButtonDisconnect->setEnabled(false);
 
@@ -227,12 +229,13 @@ void MainWindow::onStart()
 
     ui->groupBoxRemoteHost->setEnabled(false);
     ui->lineEditPid->setEnabled(false);
+    ui->checkBoxUseSudo->setEnabled(false);
     ui->lineEditMaxDataTime->setEnabled(false);
     ui->pushButtonStart->setEnabled(false);
     ui->pushButtonStop->setEnabled(true);
 
     // set max diff time
-    QList<BaseWidget *> wList = this->allWidgets();
+    const QList<BaseWidget *> wList = this->allWidgets();
     for (BaseWidget *w : wList)
         w->setMaxDataTime(ui->lineEditMaxDataTime->text().trimmed().toUInt());
 
@@ -246,6 +249,7 @@ void MainWindow::onStop()
 {
     ui->groupBoxRemoteHost->setEnabled(true);
     ui->lineEditPid->setEnabled(true);
+    ui->checkBoxUseSudo->setEnabled(true);
     ui->lineEditMaxDataTime->setEnabled(true);
     ui->pushButtonStart->setEnabled(true);
     ui->pushButtonStop->setEnabled(false);
@@ -254,8 +258,7 @@ void MainWindow::onStop()
     // clear cmd list
     _cmdList.clear();
 
-
-    QList<BaseWidget *> wList = this->allWidgets();
+    const QList<BaseWidget *> wList = this->allWidgets();
     for (BaseWidget *w : wList)
         w->stop();
 
@@ -271,13 +274,17 @@ void MainWindow::onSelectData()
     ui->labelWTime->setText(this->workingTimeToStr(diffTime));
 
     // init cmd list...
-    QList<BaseWidget *> wList = this->allWidgets();
+    const QList<BaseWidget *> wList = this->allWidgets();
     for (BaseWidget *w : wList) {
-        QStringList cmdList = w->cmdList(ui->lineEditPid->text().trimmed().toUInt());
+        const QStringList cmdList = w->cmdList(ui->lineEditPid->text().trimmed().toUInt());
         if (cmdList.isEmpty())
             continue;
-        for (const QString &cmd : cmdList)
-            this->appendCmd(CmdInfo(cmd, w));
+        for (const QString &cmd : cmdList) {
+            if (ui->checkBoxUseSudo->isChecked())
+                this->appendCmd(CmdInfo(QString("sudo %1").arg(cmd), w));
+            else
+                this->appendCmd(CmdInfo(cmd, w));
+        }
     }
 
     // select data...
@@ -293,8 +300,16 @@ void MainWindow::onSshConnected(bool isSuccess)
         this->onDisconnect();
         return;
     }
-    qDebug() << "[onSshConnected] Ok --> sshAuthenticateKbdint...";
-    _ssh->sshAuthenticateKbdint();
+    if (ui->comboBoxAuthType->currentText() == "Password") {
+        qDebug() << "[onSshConnected] Ok --> sshAuthenticatePassword...";
+        _ssh->sshAuthenticatePassword(ui->lineEditPassword->text().trimmed());
+    } else if (ui->comboBoxAuthType->currentText() == "Public Key") {
+        qDebug() << "[onSshConnected] Ok --> sshAuthenticatePubkey...";
+        _ssh->sshAuthenticatePubkey();
+    } else if (ui->comboBoxAuthType->currentText() == "Keyboard Interactive") {
+        qDebug() << "[onSshConnected] Ok --> sshAuthenticateKbdint...";
+        _ssh->sshAuthenticateKbdint();
+    }
 }
 
 void MainWindow::onSshDisconnected()
@@ -328,7 +343,7 @@ void MainWindow::onSshResult(const QString commandResult)
     CmdInfo cmd = this->takeFirstCmd();
     if (!cmd.isValid())
         return;
-    QList<BaseWidget *> wList = cmd.widgetsList();
+    const QList<BaseWidget *> wList = cmd.widgetsList();
     for (BaseWidget *w : wList)
         w->processCmdResult(cmd.cmd(), commandResult);
 
