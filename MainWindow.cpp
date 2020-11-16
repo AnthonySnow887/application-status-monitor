@@ -330,7 +330,7 @@ void MainWindow::onSshAutenticate(bool isSuccess)
 {
     if (!isSuccess) {
         qDebug() << "[onSshAutenticate] SshAutenticate failed!";
-        _ssh->sshDisconnect();
+        this->onDisconnect();
         return;
     }
     _sshConnected = true;
