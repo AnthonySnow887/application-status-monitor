@@ -39,7 +39,11 @@ TabHostStatistics::~TabHostStatistics()
 
 QString TabHostStatistics::tabTitle() const
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     return trUtf8("Host Statistics");
+#else
+    return QString("Host Statistics");
+#endif
 }
 
 QList<BaseWidget *> TabHostStatistics::widgetsList() const

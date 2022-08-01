@@ -39,7 +39,11 @@ TabGraphics::~TabGraphics()
 
 QString TabGraphics::tabTitle() const
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     return trUtf8("Application Base Statistics");
+#else
+    return QString("Application Base Statistics");
+#endif
 }
 
 QList<BaseWidget *> TabGraphics::widgetsList() const

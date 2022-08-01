@@ -14,7 +14,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     this->setWindowTitle(trUtf8("Application Status Monitor"));
+#else
+    this->setWindowTitle(QString("Application Status Monitor"));
+#endif
 
     ui->lineEditMaxDataTime->setText(QString::number(MAX_DATA_DIFF_TIME_SEC));
 
