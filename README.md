@@ -19,7 +19,7 @@ NOTE: Only Linux.
 
 ## Dependencies
 
-- libqt4-devel (or libqt5-devel)
+- libqt5-devel (or libqt4-devel)
 - libssh-devel (version >= 0.7.3)
 
 ## Build
