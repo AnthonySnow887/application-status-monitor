@@ -24,7 +24,11 @@ TabSockets::~TabSockets()
 
 QString TabSockets::tabTitle() const
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     return trUtf8("Application Opend Network Ports");
+#else
+    return QString("Application Opend Network Ports");
+#endif
 }
 
 QList<BaseWidget *> TabSockets::widgetsList() const
@@ -108,5 +112,10 @@ void TabSockets::processData(const QList<SocketData> &sockets)
         _model->appendRow(row);
     }
     ui->tableView->resizeColumnsToContents();
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     ui->tableView->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch); // column "Name"
+#else
+    ui->tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch); // column "Name"
+#endif
 }
