@@ -149,8 +149,6 @@ int Ssh::verifyKnownhost(sshServerHostType &type, QString &error)
     ssh_key srv_pubkey;
     int rc;
 
-    int state = ssh_is_server_known(_sshSession);
-
 #if (LIBSSH_VERSION_MINOR >= 8)
     rc = ssh_get_server_publickey(_sshSession, &srv_pubkey);
 #else
@@ -170,6 +168,89 @@ int Ssh::verifyKnownhost(sshServerHostType &type, QString &error)
         return -1;
     }
 
+#if (LIBSSH_VERSION_MINOR >= 9)
+    ssh_known_hosts_e state = ssh_session_is_known_server(_sshSession);
+    switch(state) {
+        case SSH_KNOWN_HOSTS_OK:
+            type = sshServerKnownOk;
+            break; /* ok */
+
+        case SSH_KNOWN_HOSTS_CHANGED:
+            hexa = ssh_get_hexa(hash, hlen);
+            type = sshServerKnownChanged;
+            error += QString("Host key for server changed: it is now:\n");
+            error += QString("%1\n").arg(hexa);
+            error += QString("For security reasons, connection will be stopped");
+
+//            qDebug() << "Host key for server changed: it is now:";
+//            ssh_print_hexa("Public key hash", hash, hlen);
+//            qDebug() << "For security reasons, connection will be stopped";
+
+            free(hexa);
+            ssh_clean_pubkey_hash(&hash);
+            return -1;
+
+        case SSH_KNOWN_HOSTS_OTHER:
+            type = sshServerFoundOther;
+            if(_isIgnoreFoundOtherHosts) {
+                error += QString("The host key for this server was not found but an other type of key exists.\n");
+                error += QString("An attacker might change the default server key to confuse your client into thinking the key does not exist.\n");
+                ssh_clean_pubkey_hash(&hash);
+                return -1;
+            }
+            break;
+
+        case SSH_KNOWN_HOSTS_NOT_FOUND: /* Возвращение к ситуации SSH_SERVER_NOT_KNOWN */
+            type = sshServerFileNotFound;
+            hexa = ssh_get_hexa(hash, hlen);
+            error += QString("Could not find known host file.\n");
+            error += QString("Public key hash: %1\n").arg(hexa);
+
+            if(!_isAddNotKnownHosts) {
+                free(hexa);
+                ssh_clean_pubkey_hash(&hash);
+                return -1;
+            }
+
+            if(ssh_session_update_known_hosts(_sshSession) < 0) {
+                error += QString("SSH write knownhost error!");
+                free(hexa);
+                ssh_clean_pubkey_hash(&hash);
+                return -1;
+            }
+            free(hexa);
+            break;
+
+        case SSH_KNOWN_HOSTS_UNKNOWN:
+            type = sshServerNotKnown;
+            hexa = ssh_get_hexa(hash, hlen);
+            error += QString("The server is unknown.\n");
+            error += QString("Public key hash: %1\n").arg(hexa);
+
+            if(!_isAddNotKnownHosts) {
+                free(hexa);
+                ssh_clean_pubkey_hash(&hash);
+                return -1;
+            }
+
+            if(ssh_session_update_known_hosts(_sshSession) < 0) {
+                error += QString("SSH write knownhost error!");
+                free(hexa);
+                ssh_clean_pubkey_hash(&hash);
+                return -1;
+            }
+            free(hexa);
+            break;
+
+        case SSH_KNOWN_HOSTS_ERROR:
+            type = sshServerNotKnown;
+            error += QString("%1").arg(ssh_get_error(_sshSession));
+            ssh_clean_pubkey_hash(&hash);
+            return -1;
+    }
+    ssh_clean_pubkey_hash(&hash);
+#else
+    int state = ssh_is_server_known(_sshSession);
     switch(state) {
         case SSH_SERVER_KNOWN_OK:
             type = sshServerKnownOk;
@@ -249,6 +330,7 @@ int Ssh::verifyKnownhost(sshServerHostType &type, QString &error)
             return -1;
     }
     free(hash);
+#endif
     return 0;
 }
 
